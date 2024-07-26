@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="static/css/login.css">
+</head>
+<body>
+    <header id="navbar-1">
+        <a class="logo-section" title="expleo machine learnig">
+          <img src="./static/expleo.png" width="162" height="36" alt="expleo"/>
+        </a>
+      </header>
+
+    <div class="login-container">
+        <h2 style="text-align: center;">Login</h2>
+        <form method="POST">
+            <label for="username">Enter Username:</label>
+            <input type="text" id="username" name="username" required>
+            <label for="password">Enter Password:</label>
+            <input type="password" id="password" name="password" required>
+            <button type="submit">Login</button>
+        </form>
+
+        {% if error %}
+        <script>
+          alert("{{ error }}");
+        </script>
+        {% endif %}
+      
+    </div>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Chat2Plot with Flask</title>
+    <link rel="stylesheet" href="static/css/style.css" />
+
+    <link rel="stylesheet" href="./static/css/navbar.css" />
+    <link rel="stylesheet" href="./static/css/sty.css" />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <style>
+      .loading {
+        display: none;
+        position: fixed;
+        z-index: 999;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.8);
+        text-align: center;
+        padding-top: 200px;
+      }
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-top-color: #333;
+        animation: spin 1s ease-in-out infinite;
+        margin: 0 auto;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        document
+          .getElementById("myForm")
+          .addEventListener("submit", function () {
+            document.getElementById("loading").style.display = "block";
+          });
+      });
+    </script>
+  </head>
+  <body>
+    <header id="navbar-1" class="navbar-nav flex-row">
+      <a class="logo-section" title="expleo machine learnig">
+        <img src="./static/expleo.png" width="162" height="36" alt="expleo" />
+      </a>
+      <ul class="align-items-center">
+        <li><a href="upload">Home</a></li>
+        <li>
+          <a href="https://expleo.com/global/en/about-us/" target="_blank"
+            >About us</a
+          >
+        </li>
+        <li><a href="dashboard">Dashboard</a></li>
+        <li>
+          <a href="login" class="action-url" data-href="01-index.html">
+            <span class="login-action">Logout</span>
+          </a>
+        </li>
+      </ul>
+    </header>
+
+    <br /><br />
+
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+    </div>
+    <form method="post" id="myForm">
+      <label for="query">Enter your query:</label>
+      <input
+        type="textarea"
+        id="query"
+        name="query"
+        placeholder="e.g., give me a bar chart"
+        size="100"
+      />
+      <div class="btn">
+        <input type="submit" value="Generate Plot" />
+      </div>
+    </form>
+
+    <div class="graphGeneration">
+      {% if graph_html %}
+      <p id="Query"><b>User Query:</b> {{ query }}</p>
+      <div id="graph-html">{{ graph_html | safe }}</div>
+      <div id="buttons" align="center">
+        <button id="save-to-dashboard" class="btn btn-primary">
+          Save to Dashboard
+        </button>
+        <!-- <button id="clearDashboard" class="btn btn-primary">Clear Dashboard</button> -->
+      </div>
+      {% endif %} {% if explanation %}
+      <p><b>Explanation:</b> {{ explanation }}</p>
+      {% endif %} {% if error_message %}
+      <p class="error">Try Valid Query: {{ error_message }}</p>
+      {% endif %}
+    </div>
+
+    <br /><br />
+  </body>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      $("#save-to-dashboard").click(function () {
+        var img_uri = $("#graph-html").html();
+        var prompt = "{{ query }}";
+
+        $.ajax({
+          type: "POST",
+          contentType: "application/json",
+          url: "/save_to_dashboard",
+          data: JSON.stringify({ img_uri: img_uri, prompt: prompt }),
+          success: function (data) {
+            if (data.success) {
+              alert("Plot saved to dashboard!");
+            } else {
+              alert("Error: Unable to save plot to dashboard.");
+            }
+          },
+          error: function (error) {
+            if (error.status === 401) {
+              alert("Error: User not logged in. Please log in first.");
+              window.location.href = "/login"; // Redirect to login page
+            } else {
+              alert("Error: Unable to save plot to dashboard.");
+              console.error("Error:", error);
+            }
+          },
+        });
+      });
+    });
+  </script>
+</html>

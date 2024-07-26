@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="static/css/dashboard.css" />
+    <link rel="stylesheet" href="./static/css/navbar.css" />
+    <link rel="stylesheet" href="./static/css/sty.css" />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+  </head>
+  <body>
+    <header id="navbar-1" class="navbar-nav flex-row">
+      <a class="logo-section" title="expleo machine learnig">
+        <img src="./static/expleo.png" width="162" height="36" alt="expleo" />
+      </a>
+      <ul class="align-items-center">
+        <li><a href="upload">Home</a></li>
+        <li><a href="https://expleo.com/global/en/about-us/" target="_blank">About us</a></li>
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li>
+          <a href="login" class="action-url" data-href="01-index.html">
+            <span class="login-action">Logout</span>
+          </a>
+        </li>
+      </ul>
+    </header>
+ 
+    <div class="container">
+      <h1>Dashboard</h1>
+      <div id="plot-history">
+        {% for plot in dashboard_plots %}
+        <div class="plot-entry">
+          <p><b>Prompt:</b> {{ plot.prompt }}</p>
+          <div>{{ plot.img_uri | safe }}</div>
+        </div>
+        <hr />
+        {% endfor %}
+      </div>
+    </div>
+ 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  </body>
+</html>

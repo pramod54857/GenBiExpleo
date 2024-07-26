@@ -1,0 +1,137 @@
+/* General reset for margin and padding */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body styles */
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding-top: 60px; /* Adjust this if needed to accommodate the fixed header */
+}
+
+/* Header styles */
+header#navbar-1 {
+    width: 100%;
+    background-color: #000; /* Black background */
+    padding: 10px 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: flex-start; /* Align image to the left */
+    align-items: center;
+    position: fixed; /* Fixes the header to the top */
+    top: 0; /* Positions it at the top */
+    left: 0; /* Ensures it spans the full width */
+    z-index: 1000; /* Keeps it above other content */
+}
+
+/* Logo section styles */
+.logo-section {
+    display: flex;
+    align-items: center;
+}
+
+.logo-section img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+/* Heading styles */
+h1 {
+    font-size: 36px;
+    color: #333;
+    margin: 20px 0;
+    text-align: center;
+}
+
+/* Login container styles */
+.login-container {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    width: 100%;
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Login container hover effect */
+.login-container:hover {
+    transform: scale(1.02);
+}
+
+/* Form heading styles */
+h2 {
+    margin-bottom: 20px;
+    color: #333;
+    font-size: 24px;
+}
+
+/* Label styles */
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: #555;
+}
+
+/* Input styles */
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+/* Input focus styles */
+input[type="text"]:focus,
+input[type="password"]:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+/* Button styles */
+button {
+    width: 100%;
+    padding: 12px;
+    background-color: #6846C6; /* Button color */
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+/* Button hover effect */
+button:hover {
+    background-color: #5a2d9d;
+}
+
+/* Button active effect */
+button:active {
+    background-color: #4a1d7b;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .login-container {
+        padding: 20px;
+    }
+
+    h2 {
+        font-size: 20px;
+    }
+}

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Chat2Plot with Flask</title>
+    <link rel="stylesheet" href="static/css/upload.css" />
+    <link rel="stylesheet" href="./static/css/navbar.css" />
+    <link rel="stylesheet" href="./static/css/sty.css" />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <style>
+      .loading {
+        display: none;
+        position: fixed;
+        z-index: 999;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.8);
+        text-align: center;
+        padding-top: 200px;
+      }
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-top-color: #333;
+        animation: spin 1s ease-in-out infinite;
+        margin: 0 auto;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        document
+          .getElementById("uploadForm")
+          .addEventListener("submit", function () {
+            document.getElementById("loading").style.display = "block";
+          });
+      });
+    </script>
+  </head>
+  <body>
+    <header id="navbar-1" class="navbar-nav flex-row">
+      <a class="logo-section" title="expleo machine learnig">
+        <img src="./static/expleo.png" width="162" height="36" alt="expleo" />
+      </a>
+      <ul class="align-items-center">
+        <li><a href="#">Home</a></li>
+        <li>
+          <a href="https://expleo.com/global/en/about-us/" target="_blank"
+            >About us</a
+          >
+        </li>
+        <li><a href="dashboard">Dashboard</a></li>
+        <li>
+          <a href="login" class="action-url" data-href="01-index.html">
+            <span class="login-action">Logout</span>
+          </a>
+        </li>
+      </ul>
+    </header>
+
+    <br /><br /><br /><br /><br />
+
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+    </div>
+
+    <h1 style="text-align: center"><b>Welcome to GenBi </b></h1>
+    <h7 style="text-align: center">Upload Your File to Explore Data</h7>
+    <br />
+
+    <form method="post" enctype="multipart/form-data" id="uploadForm">
+      <input type="file" id="file" name="file" />
+      <div class="button-container">
+        <button type="submit">Upload</button>
+      </div>
+    </form>
+    {% if error_message %}
+    <p style="color: red">{{ error_message }}</p>
+    {% endif %}
+  </body>
+</html>
