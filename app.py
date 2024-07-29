@@ -8,6 +8,7 @@ from langchain_community.chat_models import ChatOpenAI
 import plotly.io as pio
 from plotly.io import to_image
 from werkzeug.utils import secure_filename
+import re
 
 
 dotenv.load_dotenv()    
@@ -25,8 +26,7 @@ app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
 
 # app.config['UPLOAD_FOLDER'] = 'uploads/'
-# global df
-df=[]
+global df
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'txt', 'csv', 'xls', 'xlsx'}
 
@@ -53,6 +53,11 @@ def login():
         return render_template('login.html', error='Incorrect Username or Password')
 
     return render_template('login.html')
+ 
+def clean_column_name(name):
+    # Remove all symbols and spaces using regex
+    cleaned_name = re.sub(r'[^A-Za-z0-9]+', '', name)
+    return cleaned_name
 
 def clear_tmp_folder(folder):
     for filename in os.listdir(folder):
@@ -114,11 +119,30 @@ def read_file_from_tmp(filename):
 
     if filename.endswith('.xls') or filename.endswith('.xlsx'):
         df = pd.read_excel(file_path)
+        print('inside xls read')
+        print(df.isna().sum())
+        # Replace NaNs in numeric columns with 0 and string columns with 'NA'
+        for col in df.columns:
+            if pd.api.types.is_numeric_dtype(df[col]):
+                df[col].fillna(0, inplace=True)  # Replace NaNs in numeric columns with 0
+            elif pd.api.types.is_object_dtype(df[col]):
+                df[col].fillna('NA', inplace=True)  # Replace NaNs in string columns with 'NA'
+
+        # Verify that NaNs are handled
+        print("After filling NaNs:")
+        print(df.isnull().sum())
+        print('Before cleaning column names:')
+        for column in df.columns:
+            print(column)
+        print('After cleaning column names:')
+        df.columns = [clean_column_name(col) for col in df.columns]
+        for column in df.columns:
+            print(clean_column_name(column))
+        print(df.tail(20))
     elif filename.endswith('.csv'):
         df = pd.read_csv(file_path)
     else:
         raise ValueError("Unsupported file type")
-
     return df
 
 
@@ -146,7 +170,7 @@ def index():
         try:
             full_query = (
                 f"As an expert data analyst, please ensure that you handle data type conversions and error handling appropriately. "
-                f"Visualize the following dataset using distinct colors for clarity. Here is a preview of the data:\n\n"
+                f"Visualize the following dataset using Multiple colors for clarity. Here is a preview of the data:\n\n"
                 f"{df.head(5).to_string()}\n\n"
                 f"Based on this data, address the following query: '{query}'. "
                 "Generate an accurate visualization, provide a comprehensive explanation, and offer any significant insights or trends. "
