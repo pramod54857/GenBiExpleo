@@ -25,7 +25,8 @@ app = Flask(__name__)
 
 app.secret_key = 'your_secret_key_here'
 
-global df
+# Global DataFrame
+df = pd.DataFrame()
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'txt', 'csv', 'xls', 'xlsx'}
 
@@ -63,7 +64,7 @@ def clean_column_name(name):
 def upload():
     global df
     print('inside upload Function')
-    
+
     if 'username' not in session:
         print('inside if statement for username')
         return redirect(url_for('login'))
@@ -101,7 +102,6 @@ def upload():
 @app.route('/index', methods=['GET', 'POST'])
 def index():
     global df
-    data=df.copy()
     print('inside index')
     if 'username' not in session:
         return redirect(url_for('login'))
@@ -115,7 +115,7 @@ def index():
 
         try:
             print('Data head')
-            print(data.head())
+            print(df.head())
         except Exception as e:
             return render_template('index.html', error_message=f"An error occurred while reading the file: {str(e)}")
 
@@ -125,13 +125,13 @@ def index():
             full_query = (
                 f"As an expert data analyst, please ensure that you handle data type conversions and error handling appropriately. "
                 f"Visualize the following dataset using distinct colors for clarity. Here is a preview of the data:\n\n"
-                f"{data.head(5).to_string()}\n\n"
+                f"{df.head(5).to_string()}\n\n"
                 f"Based on this data, address the following query: '{query}'. "
                 "Generate an accurate visualization, provide a comprehensive explanation, and offer any significant insights or trends. "
                 "Ensure to handle any data inconsistencies or conversion issues you encounter and dont."
             )
 
-            c2p = chat2plot(data, chat=ChatOpenAI(model='gpt-3.5-turbo'))
+            c2p = chat2plot(df.copy(), chat=ChatOpenAI(model='gpt-3.5-turbo'))
             result = c2p(full_query)
             graph_html = pio.to_html(result.figure, full_html=False)
             explanation = result.explanation
