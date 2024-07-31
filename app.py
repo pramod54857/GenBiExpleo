@@ -17,7 +17,7 @@ api = os.getenv('api_key')
 if api is not None:
     os.environ["OPENAI_API_KEY"] = api
 else:
-    # Handle the case where api is None, perhaps by setting a default value or logging an error.
+    # Handle  api
     print("API key is not available.")
  
 
@@ -25,13 +25,14 @@ app = Flask(__name__)
 
 app.secret_key = 'your_secret_key_here'
 
-# app.config['UPLOAD_FOLDER'] = 'uploads/'
 global df
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'txt', 'csv', 'xls', 'xlsx'}
 
 USERS = {
-    'admin@expleo.com': 'expleo@1234'
+    'admin@expleo.com': 'expleo@1234',
+    'Ei54857@expleo.com': 'expleo@12345'
+ 
 }
 
 @app.route('/')
@@ -58,97 +59,49 @@ def clean_column_name(name):
     # Remove all symbols and spaces using regex
     cleaned_name = re.sub(r'[^A-Za-z0-9]+', '', name)
     return cleaned_name
-
-def clear_tmp_folder(folder):
-    for filename in os.listdir(folder):
-        file_path = os.path.join(folder, filename)
-        try:
-            if os.path.isfile(file_path) or os.path.islink(file_path):
-                os.unlink(file_path)
-            elif os.path.isdir(file_path):
-                os.rmdir(file_path)
-        except Exception as e:
-            print(f'Failed to delete {file_path}. Reason: {e}')
-            
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
     global df
-    print('innside upload')
+    print('inside upload Function')
+    
     if 'username' not in session:
+        print('inside if statement for username')
         return redirect(url_for('login'))
-
+    
     if request.method == 'POST':
         if 'file' not in request.files:
             return render_template('upload.html', error_message="No file part")
-
         uploaded_file = request.files['file']
 
         if uploaded_file.filename == '':
             return render_template('upload.html', error_message="No selected file")
 
         if allowed_file(uploaded_file.filename):
-            clear_tmp_folder('/tmp/')
-            file_ext = uploaded_file.filename.rsplit('.', 1)[1].lower()
-            filename = f"data_file.{file_ext}"
-            file_path = os.path.join('/tmp/', filename)
-            
-            # filename = secure_filename(uploaded_file.filename)
-            file_path = os.path.join('/tmp/', filename)
-
             try:
-                uploaded_file.save(file_path)
+                if uploaded_file.filename.lower().endswith('.csv'):
+                    print('inside csv read')
+                    df = pd.read_csv(uploaded_file)
+                elif uploaded_file.filename.lower().endswith(('.xls', '.xlsx')):
+                    print('inside xls read')
+                    df = pd.read_excel(uploaded_file)
+                else:
+                    return render_template('upload.html', error_message="Unsupported file type")
+                print('Dataframe head')
+                print(df.head())  
                 
-                # Store the filename in the session
-                session['uploaded_filename'] = filename
-                df = read_file_from_tmp(filename)
                 return redirect(url_for('index'))
+
             except Exception as e:
-                return render_template('upload.html', error_message=f"An error occurred while saving the file: {str(e)}")
+                return render_template('upload.html', error_message=f"An error occurred while reading the file: {str(e)}")
         else:
-            return render_template('upload.html', error_message="Allowed file types are txt, csv, xls, xlsx")
+            return render_template('upload.html', error_message="Allowed file types are csv, xls, xlsx")
 
     return render_template('upload.html')
-
-def read_file_from_tmp(filename):
-    print('Inside read file from tmp func')
-    global df
-    file_path = os.path.join('/tmp/', filename)
-    
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"No such file: '{file_path}'")
-
-    if filename.endswith('.xls') or filename.endswith('.xlsx'):
-        df = pd.read_excel(file_path)
-        print('inside xls read')
-        print(df.isna().sum())
-        # Replace NaNs in numeric columns with 0 and string columns with 'NA'
-        for col in df.columns:
-            if pd.api.types.is_numeric_dtype(df[col]):
-                df[col].fillna(0, inplace=True)  # Replace NaNs in numeric columns with 0
-            elif pd.api.types.is_object_dtype(df[col]):
-                df[col].fillna('NA', inplace=True)  # Replace NaNs in string columns with 'NA'
-
-        # Verify that NaNs are handled
-        print("After filling NaNs:")
-        print(df.isnull().sum())
-        print('Before cleaning column names:')
-        for column in df.columns:
-            print(column)
-        print('After cleaning column names:')
-        df.columns = [clean_column_name(col) for col in df.columns]
-        for column in df.columns:
-            print(clean_column_name(column))
-        print(df.tail(20))
-    elif filename.endswith('.csv'):
-        df = pd.read_csv(file_path)
-    else:
-        raise ValueError("Unsupported file type")
-    return df
-
 
 @app.route('/index', methods=['GET', 'POST'])
 def index():
     global df
+    data=df.copy()
     print('inside index')
     if 'username' not in session:
         return redirect(url_for('login'))
@@ -157,11 +110,12 @@ def index():
         filename = session.get('uploaded_filename')
         
         if not filename:
+            print('No file has been uploaded.')
             return render_template('index.html', error_message="No file has been uploaded.")
 
         try:
-            # df = read_file_from_tmp(filename)
-            print(df.head())
+            print('Data head')
+            print(data.head())
         except Exception as e:
             return render_template('index.html', error_message=f"An error occurred while reading the file: {str(e)}")
 
@@ -170,15 +124,14 @@ def index():
         try:
             full_query = (
                 f"As an expert data analyst, please ensure that you handle data type conversions and error handling appropriately. "
-                f"Visualize the following dataset using Multiple colors for clarity. Here is a preview of the data:\n\n"
-                f"{df.head(5).to_string()}\n\n"
+                f"Visualize the following dataset using distinct colors for clarity. Here is a preview of the data:\n\n"
+                f"{data.head(5).to_string()}\n\n"
                 f"Based on this data, address the following query: '{query}'. "
                 "Generate an accurate visualization, provide a comprehensive explanation, and offer any significant insights or trends. "
                 "Ensure to handle any data inconsistencies or conversion issues you encounter and dont."
             )
 
-            # c2p = chat2plot(df, chat=ChatOpenAI(model='gpt-4o'))
-            c2p = chat2plot(df.copy(), chat=ChatOpenAI(model='gpt-3.5-turbo'))
+            c2p = chat2plot(data, chat=ChatOpenAI(model='gpt-3.5-turbo'))
             result = c2p(full_query)
             graph_html = pio.to_html(result.figure, full_html=False)
             explanation = result.explanation
@@ -189,7 +142,6 @@ def index():
             return render_template('index.html', error_message=error_message)
     else:
         return render_template('index.html')
-
     
 dashboard_plots = []
 @app.route('/save_to_dashboard', methods=['POST'])
