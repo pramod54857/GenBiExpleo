@@ -87,13 +87,13 @@ def upload():
             return render_template('upload.html', error_message="No selected file")
 
         if allowed_file(uploaded_file.filename):
-            clear_tmp_folder('tmp')
+            clear_tmp_folder('/tmp/')
             file_ext = uploaded_file.filename.rsplit('.', 1)[1].lower()
             filename = f"data_file.{file_ext}"
-            file_path = os.path.join('tmp', filename)
+            file_path = os.path.join('/tmp/', filename)
             
             # filename = secure_filename(uploaded_file.filename)
-            file_path = os.path.join('tmp', filename)
+            file_path = os.path.join('/tmp/', filename)
 
             try:
                 uploaded_file.save(file_path)
@@ -112,7 +112,7 @@ def upload():
 def read_file_from_tmp(filename):
     print('Inside read file from tmp func')
     global df
-    file_path = os.path.join('tmp', filename)
+    file_path = os.path.join('/tmp/', filename)
     
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"No such file: '{file_path}'")
